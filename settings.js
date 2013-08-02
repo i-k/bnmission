@@ -14,7 +14,7 @@ function Settings(){
       return mongoHost || orUseThisHost;
     }
 
-  this.appPort = process.env.PORT,
+  this.appPort = process.env.PORT || 8080,
   this.mongoHost = getMongoHostFromSettingsPathOr('./mongoSettings.js', 'localhost')
   this.mission = {
     maxNameLength: 200,

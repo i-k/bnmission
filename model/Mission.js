@@ -20,7 +20,7 @@ function initMission(mongoose, settings) {
 
   schema.path('description').validate(function (value) {
     return !value || value.length <= settings.maxDescriptionLength
-  }, 'Description too long for objective. Max ' + settings.maxDescriptionLength + ' characters.')
+  }, 'Description too long for mission. Max ' + settings.maxDescriptionLength + ' characters.')
 
   schema.path('tags').validate(function (value) {
     return value instanceof Array
