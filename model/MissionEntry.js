@@ -12,7 +12,7 @@ function initMissionEntry(mongoose, settings) {
   }, 'userId is missing')
 
   schema.path('userId').validate(function (value) {
-      return !value || value.length <= 100
+      return value.length <= 100
   }, 'userId is too long')
 
   return mongoose.model('MissionEntry', schema);
