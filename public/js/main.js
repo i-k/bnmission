@@ -44,18 +44,26 @@ define(['js/view/Frontpage.js', /*, 'http://localhost:8080/socket.io/socket.io.j
 /*var socket = io.connect('http://localhost:8080')
   socket.on('news', function (data) { console.log(data) }) */
     var db = (function() {
-      var mission;
+      var missions = [
+        ["Käy marjaretkellä metsässä",
+         "Kävelyn ja luonnossa liikkumisen on tutkitusti todettu auttavan muun muassa masennukseen, nivelvaivoihin, ... (lähteet)",
+         { url: "http://31.media.tumblr.com/tumblr_m7iwk6veKz1qm06i2o1_500.jpg", alt: "Metsä" },
+         ["terveys", "luonto", "kävely"]],
+        ["Valkoiset jauhot",
+         "Tehtävänä on pitäytyä poissa valkoisista jauhoista tehdyistä elintarvikkeista. Tällaisia ovat mm. vaaleat leivät, pasta, pizzat ja hampurilaiset. Valkoinen jauho nostaa insuliinin tason nopeasti korkealle",
+         { url: "http://31.media.tumblr.com/93fc9c743131174f2daecbc03503eb82/tumblr_mqw0ucuTPf1saiotro1_500.jpg", alt: "Vaaleaa leipää" },
+         ["ruoka"]]
+       ].map(function(e) { 
+         return createMissionWithRandomEntries(
+           { name: e[0], description: e[1], image: e[2], tags: e[3] }
+         );
+       }),
+          mission;
       
       return {
         fetchMissionByDate: function(date, onFound) {
           if(!mission)
-            mission = createMissionWithRandomEntries(
-              { name: "Käy marjaretkellä metsässä",
-                description: "Kävelyn ja luonnossa liikkumisen on tutkitusti todettu auttavan muun muassa masennukseen, nivelvaivoihin, ... (lähteet)",
-                image: { url: "http://31.media.tumblr.com/tumblr_m7iwk6veKz1qm06i2o1_500.jpg", alt: "Metsä" },
-                tags: ["luonto", "kävely"] },
-              10
-            );
+            mission = missions[Math.floor(Math.random() * missions.length)];
           onFound(mission);
         },
         createEntry: function(userId) {
@@ -92,9 +100,10 @@ define(['js/view/Frontpage.js', /*, 'http://localhost:8080/socket.io/socket.io.j
       $(this).hide()
     })
 
-    function createMissionWithRandomEntries(data, entryAmount) {
+    function createMissionWithRandomEntries(data) {
       var entries = [],
-          missionId = 1,
+          missionId = Math.floor(Math.random() * 10),
+          entryAmount = Math.floor(Math.random() * 100),
           i;
       for(i = 0; i < entryAmount; ++i)
         entries.push(createEntry(missionId, i));

@@ -32,7 +32,7 @@ define(['lib/handlebars',
   }
   
   function renderSignUpInput() {
-    var button = btn("Aion tehdä tämän").click(function() {
+    var button = btn("Olen mukana!").click(function() {
       var entry = db.createEntry();
       db.saveEntry(entry);
       showDoneOrInput(entry);
@@ -47,8 +47,8 @@ define(['lib/handlebars',
   }
   
   function renderDoneInput(entry) {
-    var div = $("<div><p>Aiot suorittaa tehtävän</p></div>");
-    var button = btn("Tehty!").click(function() {
+    var div = $("<div><p>Olet mukana haasteessa!</p></div>");
+    var button = btn("Selvitin haasteen!").click(function() {
       entry.done = true;
       showDoneOrInput(entry);
       refreshDoneAmounts();
@@ -59,7 +59,7 @@ define(['lib/handlebars',
   function btn(msg) { return $('<button class="btn btn-default btn-large dropdown-toggle">' + msg + '</button>'); }
   
   function renderDone() {
-    return $("<h3>Olet suorittanut tehtävän!</h3>");
+    return $("<h3>Olet suorittanut haasteen!</h3>");
   }
   
   function initialize(database) {
@@ -67,6 +67,7 @@ define(['lib/handlebars',
     userId = db.getUserId();
     db.fetchMissionByDate(new Date(), function(found) {
       mission = found;
+      console.log(found.name);
       render();
       db.fetchEntry(userId, found.id, showDoneOrInput, showSignUpInput);
     });
