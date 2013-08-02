@@ -1,0 +1,9 @@
+<div id="mission-template" type="text/x-handlebars-template">
+  <h1>Viikon tehtävä</h1>
+  <h2>{{name}}</h2>
+  {{#if image}}<img src={{image.url}} alt={{image.alt}}>{{/if}}
+  <p>{{description}}</p>
+  <div id="signup-or-done-inputs"></div>
+  <p><span id="not-done-entry-amount">{{#funcLen notDoneEntries}}{{/funcLen}}</span> aikoo suorittaa tehtävän</p>
+  <p><span id="done-entry-amount">{{#funcLen doneEntries}}{{/funcLen}}</span> on suorittanut tehtävän</p>
+</div>
