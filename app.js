@@ -36,14 +36,18 @@ function writeResult(res, status, message, data){
   res.end()
 }
 
-// fetch single mission by mission id
-app.get('/api/mission/:id', function(req, res) {
-  Mission.findById(req.param.id, function (err, doc) {
+function simpleQueryResultHandler(res) {
+  return function(err, doc) {
     if (err)
       writeResult(res, 500, 'error occured', err)
     else
       writeResult(res, 200, 'success', doc)
-  })
+  }
+}
+
+// fetch single mission by mission id
+app.get('/api/mission/:id', function(req, res) {
+  Mission.findById(req.param.id, simpleQueryResultHandler(res))
 })
 
 // list missions filtered by date and tags parameters
@@ -66,40 +70,33 @@ app.get('/api/mission', function(req, res) {
 
   console.log(query)
 
-  Mission.find(query, function (err, docs) {
-    if (err)
-      writeResult(res, 500, 'error occured', err)
-    else
-      writeResult(res, 200, 'success', docs)
-  })
-
+  Mission.find(query, simpleQueryResultHandler(res))
 })
 
-// count all mission entries for given parameters (mission id, tags, start-date, end-date)
+// count all mission entries for given parameters.
+// Count is done either by mission id or tags, start-date and end-date
 app.get('/api/count-mission-entries', function(req, res) {
   var missionId = req.param.mid
     , tags = req.param.tags
     , startDate = req.query["start-date"]
     , endDate = req.query["end-date"]
     , query = {}
-
-  if (tags){
-    var tagsArray = tags.split(',').map(function(tag){return tag.trim()})
-    query.tags = {$all: tagsArray}     
-  }
-
-  if (missionId)
+    
+  if (missionId) {
     query.missionId = missionId
-
-  if (startDate)
-    query.startDate = {$gte: startDate}
-
-  if (endDate)
-    query.endDate = {$lte: endDate}
-
-  MissionEntry.count(query, function(err, c) {
-    writeResult(res, 200, 'success', c)
-  })
+  } else {
+    if (tags){
+      var tagsArray = tags.split(',').map(function(tag){return tag.trim()})
+      query.tags = {$all: tagsArray}     
+    }
+    
+    if (startDate)
+      query.startDate = {$gte: startDate}
+    
+    if (endDate)
+      query.endDate = {$lte: endDate}
+  }
+  MissionEntry.count(query, simpleQueryResultHandler(res))
 })
 
 // to save the entry for given mission
