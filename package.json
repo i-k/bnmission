@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "start": "node app.js",
+    "test": "mocha --recursive"
+  },
   "devDependencies": {
     "request":    "*",
     "express":    "*",
