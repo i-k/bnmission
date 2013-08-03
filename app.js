@@ -36,18 +36,24 @@ function writeResult(res, status, message, data){
   res.end()
 }
 
-function simpleQueryResultHandler(res) {
+function writeDocOnDbQuerySuccess(res) {
+  return onDbQuerySuccess(res, function(doc) {
+    writeResult(res, 200, 'success', doc)
+  })
+}
+
+function onDbQuerySuccess(res, onSuccess) {
   return function(err, doc) {
     if (err)
-      writeResult(res, 500, 'error occured', err)
+      writeResult(res, 500, 'error', err)
     else
-      writeResult(res, 200, 'success', doc)
+      onSuccess(doc)
   }
 }
 
 // fetch single mission by mission id
 app.get('/api/mission/:id', function(req, res) {
-  Mission.findById(req.param.id, simpleQueryResultHandler(res))
+  Mission.findById(req.param.id, writeDocOnDbQuerySuccess(res))
 })
 
 // list missions filtered by date and tags parameters
@@ -70,7 +76,7 @@ app.get('/api/mission', function(req, res) {
 
   console.log(query)
 
-  Mission.find(query, simpleQueryResultHandler(res))
+  Mission.find(query, writeDocOnDbQuerySuccess(res))
 })
 
 // count all mission entries for given parameters.
@@ -96,7 +102,7 @@ app.get('/api/count-mission-entries', function(req, res) {
     if (endDate)
       query.endDate = {$lte: endDate}
   }
-  MissionEntry.count(query, simpleQueryResultHandler(res))
+  MissionEntry.count(query, writeDocOnDbQuerySuccess(res))
 })
 
 // to save the entry for given mission
@@ -105,28 +111,27 @@ app.post('/api/mission-entry', function(req, res) {
   var userIp = req.headers['X-Forwarded-For'] || req.connection.remoteAddress
     , missionId = req.body.missionId
 
-  Mission.findById(missionId, function (err, doc) {
-    if (err)
-      writeResult(res, 500, 'error occured', err)
-    else {
+  Mission.findById(missionId, onDbQuerySuccess(res, function(doc) {
       // check that the endDate is within x days interval (here x = 3 days).
       var today = new Date()
         , todayMinus3Days = new Date(today)
       todayMinus3Days.setDate(-3)
       if (doc.endDate > todayMinus3Days) {
         // find existing entry and update it (done=true), or create new (done=false)
-        MissionEntry.find({_id: missionId, userId: userIp}, function (err, docs) {
-          if (err)
-            writeResult(res, 500, 'error occured', err)
-          else {
-            if (docs) { // update
-              docs.map(function(doc){
-                doc.done = true
-                doc.save
+        MissionEntry.findOne({ missionId: missionId, userId: userIp}, onDbQuerySuccess(res, function(entry) {
+          if(entry) {
+            if(entry.done) {
+              writeResult(res, 412, 'failed', 'Mission entry is already done') 
+            } else {
+              entry.done = true
+              entry.save(function(err) {
+                if(err)
+                  return writeResult(res, 500, 'error', err)
+                else
+                  writeResult(res, 200, 'success', 'Updated mission entry as done')
               })
-              writeResult(res, 200, 'success', 'updated mission entry as done')
-            } else { // create new
-              
+            }
+          } else { // create new
               var newMissionEntry = new MissionEntry({ missionId: missionId,
                                                      userId: userIp,
                                                      done: false
@@ -140,13 +145,11 @@ app.post('/api/mission-entry', function(req, res) {
                   return writeResult(res, 201, 'created', newMissionEntry)
                 }
               })
-            }
           }
-        })
+        }))
       } else
-         writeResult(res, 412, 'failed', 'Cannot save: mission is too old')
-    }
-  })
+        writeResult(res, 412, 'failed', 'Cannot save: mission is too old')
+  }))
 })
 
 app.listen(settings.appPort)
