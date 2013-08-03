@@ -1,0 +1,12 @@
+{
+  "devDependencies": {
+    "request":    "*",
+    "express":    "*",
+    "mongoose":   "*",
+    "redis":      "*",
+    "mocha":      "*",
+    "chai":       "*",
+    "sinon":      "*",
+    "sinon-chai": "*"
+  }
+}
