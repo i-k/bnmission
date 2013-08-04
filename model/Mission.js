@@ -10,16 +10,18 @@ function initMission(mongoose, settings) {
       default: new Date()
     },
     endTime: {
-      type: Date,
-      default: function() {
-        var date = new Date(this.startTime)
-        date.setDate(7)
-        return date
-      }
+      type: Date
+     // default: couldn't get this to calculate its value from startTime, so call setEndTimeToStartTimeAndAddDays
     },
     tags: [String]
   }),
+    model, // set below
     v = require("./commonValidators.js")
+    
+  schema.method('setEndTimeToStartTimeAndAddDays', function(days) {
+    this.endTime = new Date(this.startTime)
+    this.endTime.setDate(this.endTime.getDate() + (days || 7))
+  })
   
   schema.path('name').validate(v.stringExists, 'Name is missing')
   //NOTE: Mongoose keeps validating even after the validations before failed, so null-checks are needed everywhere
@@ -47,5 +49,7 @@ function initMission(mongoose, settings) {
     })
   }, 'Some tag is too long. Tag max length ' + settings.maxTagLength + ' characters.')
   
-  return mongoose.model('Mission', schema);
+  model = mongoose.model('Mission', schema)
+  
+  return model;
 };
