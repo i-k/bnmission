@@ -13,14 +13,6 @@ var app = express()
 app.use(express.bodyParser()) // to parse POSTs in JSON
 app.use(express.static(__dirname + '/public'))
 
-// CORS-headers (Cross Origin ResourceS) allow AJAX-requests from other hosts 
-function setCORSHeaders(res){
-  res.setHeader("Access-Control-Allow-Origin", "*")
-  res.setHeader("Access-Control-Allow-Credentials", "true")
-  res.setHeader("Access-Control-Allow-Methods", "DELETE, PATCH, PUT, HEAD, OPTIONS, GET, POST")
-  res.setHeader("Access-Control-Allow-Headers", "Overwrite, Destination, Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control")
-}
-
 // A little helper function for writing results in dry-manner.
 function writeResult(res, status, message, data){
   res.writeHead(status, {"Content-Type": "application/json"})
@@ -112,9 +104,9 @@ app.post('/api/mission-entry', function(req, res) {
   Mission.findById(missionId, onDbQuerySuccess(res, function(doc) {
       // check that the endDate is within x days interval (here x = 3 days).
       var today = new Date()
-        , todayMinus3Days = new Date(today)
-      todayMinus3Days.setDate(-3)
-      if (doc.endDate > todayMinus3Days) {
+        , threeDaysAgo = new Date(today)
+      threeDaysAgo.setDate(threeDaysAgo.getDate() -3)
+      if (doc.endDate > threeDaysAgo) {
         // find existing entry and update it (done=true), or create new (done=false)
         MissionEntry.findOne({ missionId: missionId, userId: userIp}, onDbQuerySuccess(res, function(entry) {
           if(entry) {
@@ -122,27 +114,20 @@ app.post('/api/mission-entry', function(req, res) {
               writeResult(res, 412, 'failed', 'Mission entry is already done') 
             } else {
               entry.done = true
-              entry.save(function(err) {
-                if(err)
-                  return writeResult(res, 500, 'error', err)
-                else
-                  writeResult(res, 200, 'success', 'Updated mission entry as done')
-              })
+              entry.save(onDbQuerySuccess(res, function() {
+                writeResult(res, 200, 'success', 'Updated mission entry as done')
+              }))
             }
           } else { // create new
-              var newMissionEntry = new MissionEntry({ missionId: missionId,
-                                                     userId: userIp,
-                                                     done: false
-                                                   })
+            var newMissionEntry = new MissionEntry({
+              missionId: missionId,
+              userId: userIp,
+              done: false
+            })
 
-              newMissionEntry.save(function(err){
-                if (err){
-                  console.log(err)
-                  return writeResult(res, 500, "Error: " + err)
-                } else {
-                  return writeResult(res, 201, 'created', newMissionEntry)
-                }
-              })
+            newMissionEntry.save(onDbQuerySuccess(res, function() {
+              return writeResult(res, 201, 'created', newMissionEntry)
+            }))
           }
         }))
       } else
