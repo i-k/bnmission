@@ -23,6 +23,16 @@ function initMission(mongoose, settings) {
     this.endTime.setDate(this.endTime.getDate() + (days || 7))
   })
   
+  schema.method('parseTagsFromString', function(value) {
+    return value.split(',').map(function(tag) { return tag.trim() })
+  })
+  
+  schema.path('tags').set(function(value) {
+    if(typeof value === 'string')
+      return this.parseTagsFromString(value)
+    return value
+  })
+  
   schema.path('name').validate(v.stringExists, 'Name is missing')
   //NOTE: Mongoose keeps validating even after the validations before failed, so null-checks are needed everywhere
   schema.path('name').validate(function (value) {
@@ -35,18 +45,21 @@ function initMission(mongoose, settings) {
     return !value || value.length <= settings.maxDescriptionLength
   }, 'Description too long for mission. Max ' + settings.maxDescriptionLength + ' characters.')
 
+  // mongooses setters automatically transform other types into a [type], so instanceof Array check is not needed
   schema.path('tags').validate(function (value) {
-    return value instanceof Array
-  }, 'Malformed tags')
+    return !!value // too hacky?
+  }, "tags are missing")
 
   schema.path('tags').validate(function (value) {
-    return value.length <= settings.maxAmountOfTags
+    if(value)
+      return value.length <= settings.maxAmountOfTags
   }, 'Too many tags. Max ' + settings.maxAmountOfTags + ' tags.')
 
   schema.path('tags').validate(function (value) {
-    return value.every(function(tag) {
-      return tag.length <= settings.maxTagLength
-    })
+    if(value)
+      return value.every(function(tag) {
+        return tag.length <= settings.maxTagLength
+      })
   }, 'Some tag is too long. Tag max length ' + settings.maxTagLength + ' characters.')
   
   model = mongoose.model('Mission', schema)

@@ -64,8 +64,7 @@ app.get('/api/mission', function(req, res) {
     , query = {}
 
   if (tags){
-    var tagsArray = tags.split(',').map(function(tag){return tag.trim()})
-    query.tags = {$all: tagsArray}     
+    query.tags = {$all: Mission.parseTagsFromString(tags)}
   }
 
   if (startDate)
@@ -92,8 +91,7 @@ app.get('/api/count-mission-entries', function(req, res) {
     query.missionId = missionId
   } else {
     if (tags){
-      var tagsArray = tags.split(',').map(function(tag){return tag.trim()})
-      query.tags = {$all: tagsArray}     
+      query.tags = {$all: Mission.parseTagsFromString(tags)}
     }
     
     if (startDate)
