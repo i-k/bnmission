@@ -1,12 +1,12 @@
 // NOTE: saving mission entries is yet untested!
 
 var express = require('express'),
-    request = require('request'),
     settings = require('./settings.js'),
     db = require('./model/db.js')(settings), // settings for validations of the models
     models = db.connect(settings.mongoHost),
     Mission = models.Mission,
-    MissionEntry = models.MissionEntry;
+    MissionEntry = models.MissionEntry,
+    ObjectId = require('mongoose').Types.ObjectId; 
 
 var app = express()
 
@@ -60,14 +60,22 @@ app.get('/api/mission', function(req, res) {
   }
 
   if (startDate)
-    query.startDate = {$gte: startDate}
+    query.startTime = {$gte: startDate}
 
   if (endDate)
-    query.endDate = {$lte: endDate}
+    query.endTime = {$lte: endDate}
 
   console.log(query)
 
   Mission.find(query, writeDocOnDbQuerySuccess(res))
+})
+
+// get mission entry by user, if exists
+app.get('/api/mission-entry', function(req, res) {
+  var missionId = req.query["mid"],
+      userIp = req.headers['X-Forwarded-For'] || req.connection.remoteAddress
+  console.log('Searching: ' + missionId + ', ' + userIp)
+  MissionEntry.findOne({missionId: new ObjectId(missionId), userId: userIp}, writeDocOnDbQuerySuccess(res))
 })
 
 // count all mission entries for given parameters.
@@ -77,20 +85,24 @@ app.get('/api/count-mission-entries', function(req, res) {
     , tags = req.param.tags
     , startDate = req.query["start-date"]
     , endDate = req.query["end-date"]
+    , done = req.query["done"]
     , query = {}
-    
+
   if (missionId) {
     query.missionId = missionId
   } else {
     if (tags){
       query.tags = {$all: Mission.parseTagsFromString(tags)}
     }
+
+    if (done)
+      query.done = {done: done}
     
     if (startDate)
-      query.startDate = {$gte: startDate}
+      query.startTime = {$gte: startDate}
     
     if (endDate)
-      query.endDate = {$lte: endDate}
+      query.endTime = {$lte: endDate}
   }
   MissionEntry.count(query, writeDocOnDbQuerySuccess(res))
 })
@@ -106,7 +118,7 @@ app.post('/api/mission-entry', function(req, res) {
       var today = new Date()
         , threeDaysAgo = new Date(today)
       threeDaysAgo.setDate(threeDaysAgo.getDate() -3)
-      if (doc.endDate > threeDaysAgo) {
+      if (doc.endTime > threeDaysAgo) {
         // find existing entry and update it (done=true), or create new (done=false)
         MissionEntry.findOne({ missionId: missionId, userId: userIp}, onDbQuerySuccess(res, function(entry) {
           if(entry) {
