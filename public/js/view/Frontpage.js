@@ -67,6 +67,8 @@ define(['lib/handlebars',
     userId = db.getUserId();
     db.fetchMissionByDate(new Date(), function(found) {
       mission = found;
+      console.log('Found missions:')
+      console.log(found)
       console.log(found.name);
       render();
       db.fetchEntry(userId, found.id, showDoneOrInput, showSignUpInput);

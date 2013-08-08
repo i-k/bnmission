@@ -61,13 +61,13 @@ define(['js/view/Frontpage.js', /*, 'http://localhost:8080/socket.io/socket.io.j
           mission;
       
       return {
-        fetchMissionByDate: function(date, onFound) {
-          if(!mission)
+        fetchMissionByDate: function(date, onFound) { // TODO: if not found
+          if (!mission) {
             mission = missions[Math.floor(Math.random() * missions.length)];
-          onFound(mission);
+          }
         },
         createEntry: function(userId) {
-          if(mission)
+          if (mission)
             return createEntry(mission.id, userId);
           else
             return null;

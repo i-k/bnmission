@@ -1,5 +1,3 @@
-// NOTE: saving mission entries is yet untested!
-
 var express = require('express'),
     settings = require('./settings.js'),
     db = require('./model/db.js')(settings), // settings for validations of the models
@@ -51,19 +49,17 @@ app.get('/api/mission/:id', function(req, res) {
 // list missions filtered by date and tags parameters
 app.get('/api/mission', function(req, res) {
   var tags = req.query["tags"]
-    , startDate = req.query["start-date"]
-    , endDate = req.query["end-date"]
+    , seekDate = req.query["date"]
     , query = {}
 
   if (tags){
     query.tags = {$all: Mission.parseTagsFromString(tags)}
   }
 
-  if (startDate)
-    query.startTime = {$gte: startDate}
-
-  if (endDate)
-    query.endTime = {$lte: endDate}
+  if (seekDate) {
+    query.startTime = {$lte: seekDate}
+    query.endTime = {$gte: seekDate}
+  }
 
   console.log(query)
 
@@ -95,8 +91,12 @@ app.get('/api/count-mission-entries', function(req, res) {
       query.tags = {$all: Mission.parseTagsFromString(tags)}
     }
 
-    if (done)
-      query.done = {done: done}
+    if (done) {
+      if (done === 'true' || done === '1')
+        query.done = true
+      else
+        query.done = false
+    }
     
     if (startDate)
       query.startTime = {$gte: startDate}
@@ -104,11 +104,13 @@ app.get('/api/count-mission-entries', function(req, res) {
     if (endDate)
       query.endTime = {$lte: endDate}
   }
+
+  console.log(query)
+
   MissionEntry.count(query, writeDocOnDbQuerySuccess(res))
 })
 
 // to save the entry for given mission
-// WARNING: yet untested!
 app.post('/api/mission-entry', function(req, res) {
   var userIp = req.headers['X-Forwarded-For'] || req.connection.remoteAddress
     , missionId = req.body.missionId
