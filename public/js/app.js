@@ -116,7 +116,7 @@
       $.getJSON(notDoneCountUrl, function(result){
         if (result.result.data) {
           var notDoneCount = result.result.data.toString()
-          $('#not-done-entry-amount').html(notDoneCount)
+          $('#not-done-entry-amount').text(notDoneCount)
         }
       })
     }
@@ -127,7 +127,7 @@
       $.getJSON(doneCountUrl, function(result){
         if (typeof result.result.data !== 'undefined') {
           var doneCount = result.result.data.toString()
-          $('#done-entry-amount').html(doneCount)
+          $('#done-entry-amount').text(doneCount)
         }
       })
     }
