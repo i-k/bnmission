@@ -5,14 +5,15 @@
 
   // Load Handlebars mission-template
   var source   = $("#mission-template").html()
-    , template = Handlebars.compile(source);
+    , template = Handlebars.compile(source)
+    , backendApiRoot = "http://localhost:8080/api/";
 
   var backend = {
-    mission: "http://localhost:8080/api/mission",
-    notDoneCount: "http://localhost:8080/api/count-mission-entries?done=false&mid=",
-    doneCount: "http://localhost:8080/api/count-mission-entries?done=true&mid=",
-    getMissionEntry: "http://localhost:8080/api/mission-entry?mid=",
-    postMissionEntry: "http://localhost:8080/api/mission-entry"
+    mission: backendApiRoot + "mission",
+    notDoneCount: backendApiRoot + "count-mission-entries?done=false&mid=",
+    doneCount: backendApiRoot + "count-mission-entries?done=true&mid=",
+    getMissionEntry: backendApiRoot + "mission-entry?mid=",
+    postMissionEntry: backendApiRoot + "mission-entry"
   }
 
   // Setup routes with Sammy.js
