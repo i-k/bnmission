@@ -60,28 +60,21 @@
     this.signUpOrDone = function(missionId){
       var getMissionEntryUrl = backend.getMissionEntry + missionId
       $.getJSON(getMissionEntryUrl, function(result){
-        if (typeof result.result.data !== 'undefined') {
-          if (result.result.data !== null){
-            var userHasCompletedMission = result.result.data.done
-              , button = null
-            if (!userHasCompletedMission) {
-              self.createButtonMarkDone(missionId)
-            } else {
-              $('#signup-or-done-inputs').html('<h3 class="text-success">Olet suorittanut tämän haasteen</h3>')
-            }
+        if (result.result.data) {
+          if (!result.result.data.done) {
+            self.createButtonMarkDone(missionId)
           } else {
-              self.createButtonParticipate(missionId)
+            $('#signup-or-done-inputs').html('<h3 class="text-success">Olet suorittanut tämän haasteen</h3>')
           }
+        } else {
+          self.createButtonParticipate(missionId)
         }
-      })    
+      })
     }
 
     this.createButtonParticipate = function(missionId){
-      buttonParticipate = document.createElement('button')
-      buttonParticipate.setAttribute('id', 'participate')
-      buttonParticipate.setAttribute('class', 'btn btn-primary')
-      var t = document.createTextNode('Osallistun haasteeseen!');
-      buttonParticipate.onclick = function(){
+      var btn = $("<button id='participate' class='btn btn-primary'>Osallistun haasteeseen!</button>")
+      btn.click(function(){
         // post backend new entry:
         $.ajax({
           type: "POST",
@@ -94,17 +87,13 @@
           },
           dataType: 'json'
         });
-      }
-      buttonParticipate.appendChild(t);
-      $('#signup-or-done-inputs').html(buttonParticipate)
+      });
+      $('#signup-or-done-inputs').html(btn)
     }
 
     this.createButtonMarkDone = function(missionId){
-      buttonMarkDone = document.createElement('button')
-      buttonMarkDone.setAttribute('id', 'mark-done')
-      buttonMarkDone.setAttribute('class', 'btn btn-success')
-      var t = document.createTextNode('Sain haasteen suoritettua!');
-      buttonMarkDone.onclick = function(){
+      var btn = $("<button id='mark-done' class='btn btn-success'>Sain haasteen suoritettua!</button>")
+      btn.click(function(){
         // post backend new entry:
         $.ajax({
           type: "POST",
@@ -117,16 +106,15 @@
           },
           dataType: 'json'
         });
-      }
-      buttonMarkDone.appendChild(t);
-      $('#signup-or-done-inputs').html(buttonMarkDone)
+      })
+      $('#signup-or-done-inputs').html(btn)
     }
 
     this.notDoneCount = function(missionId){
       // Fetch the not done count and render it:
       var notDoneCountUrl = backend.notDoneCount + missionId
       $.getJSON(notDoneCountUrl, function(result){
-        if (typeof result.result.data !== 'undefined') {
+        if (result.result.data) {
           var notDoneCount = result.result.data.toString()
           $('#not-done-entry-amount').html(notDoneCount)
         }
