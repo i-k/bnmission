@@ -1,43 +1,36 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-      
-      <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-      <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="css/bootstrap-3/bootstrap.css" rel="stylesheet" media="screen" />
-        <title>Viikkohaaste</title>
-
-        <script id="mission-template" type="text/x-handlebars-template">
-          <div class="jumbotron">
-            <h1>Viikon haaste</h1>
-            <h2>{{name}}</h2>
-            <div class="row">
-              <div class="col-6">
-                {{#if image}}<img src={{image.url}} alt={{image.alt}}>{{/if}}
-              </div>
-              <div class="col-6">
-                <p class="text-primary"><span id="not-done-entry-amount"></span> aikoo suorittaa tehtävän</p>
-                <p class="text-success"><span id="done-entry-amount"></span> on suorittanut tehtävän</p>
-                <div id="signup-or-done-inputs" class="button"></div>
-              </div>
-            </div>
-            <p>{{description}}</p>
-          </div>
-        </script>
-
-      </head>
-
-      <body>
-
-        <div id="container" class="container">
-          <div id="main"></div>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="css/bootstrap-3/bootstrap.css" rel="stylesheet" media="screen" />
+  <title>Viikkohaaste</title>
+  <script id="mission-template" type="text/x-handlebars-template">
+    <div class="jumbotron">
+      <h1>Viikon haaste</h1>
+      <h2>{{name}}</h2>
+      <div class="row">
+        <div class="col-6">
+          {{#if image}}<img src={{image.url}} alt={{image.alt}}>{{/if}}
         </div>
-
-        <script src="js/lib/jquery.js" type="text/javascript" charset="utf-8"></script>
-        <script src="js/lib/sammy.js" type="text/javascript" charset="utf-8"></script>
-        <script src="js/lib/handlebars-1.0.0.js" type="text/javascript" charset="utf-8"></script>
-        <script src="js/lib/bootstrap.min-3.js" type="text/javascript" charset="utf-8"></script>
-        <script src="js/app.js" type="text/javascript" charset="utf-8"></script>
-      </body>
-      </html>
+        <div class="col-6">
+          <p class="text-primary"><span id="not-done-entry-amount"></span> aikoo suorittaa tehtävän</p>
+          <p class="text-success"><span id="done-entry-amount"></span> on suorittanut tehtävän</p>
+          <div id="signup-or-done-inputs" class="button"></div>
+        </div>
+      </div>
+      <p>{{description}}</p>
+    </div>
+  </script>
+</head>
+<body>
+  <div id="container" class="container">
+    <div id="main"></div>
+  </div>
+  <script src="js/lib/jquery.js" type="text/javascript" charset="utf-8"></script>
+  <script src="js/lib/sammy.js" type="text/javascript" charset="utf-8"></script>
+  <script src="js/lib/bootstrap.min-3.js" type="text/javascript" charset="utf-8"></script>
+  <script src="js/app.js" type="text/javascript" charset="utf-8"></script>
+</body>
+</html>
