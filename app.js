@@ -41,6 +41,15 @@ function onDbQuerySuccess(res, onSuccess) {
   }
 }
 
+function onDbQueryFound(res, onSuccess) {
+  return onDbQuerySuccess(res, function(doc) {
+    if(doc)
+      onSuccess(doc)
+    else
+      writeResult(res, 404, 'not found')
+  })
+}
+
 // fetch single mission by mission id
 app.get('/api/mission/:id', function(req, res) {
   Mission.findById(req.param.id, writeDocOnDbQuerySuccess(res))
@@ -114,14 +123,18 @@ app.get('/api/count-mission-entries', function(req, res) {
 // to save the entry for given mission
 app.post('/api/mission-entry', function(req, res) {
   var userIp = req.headers['X-Forwarded-For'] || req.connection.remoteAddress
-    , missionId = req.body.missionId
+    , missionId = req.body.mid
+  
+  if(!missionId)
+    return writeResult(res, 412, 'failed', 'Cannot save: no mission id given')
 
-  Mission.findById(missionId, onDbQuerySuccess(res, function(doc) {
+  Mission.findById(missionId, onDbQueryFound(res, function(doc) {
       // check that the endDate is within x days interval (here x = 3 days).
       var today = new Date()
         , threeDaysAgo = new Date(today)
       threeDaysAgo.setDate(threeDaysAgo.getDate() -3)
-      if (doc.endTime > threeDaysAgo) {
+      // if the endTime doesn't exist, it is interpreted as an ongoing mission
+      if (!doc.endTime || doc.endTime > threeDaysAgo) {
         // find existing entry and update it (done=true), or create new (done=false)
         MissionEntry.findOne({ missionId: missionId, userId: userIp}, onDbQuerySuccess(res, function(entry) {
           if(entry) {

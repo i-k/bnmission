@@ -51,7 +51,7 @@
           self.signUpOrDone(context._id);
 
         } else {
-          $('#main').html('An error occured, please try reloading the page')
+          $('#main').html('Haasteita ei löytynyt. Yritä myöhemmin uudestaan!')
         }
       })
     }
@@ -73,14 +73,14 @@
 
     this.createButtonParticipate = function(missionId){
       var btn = $("<button id='participate' class='btn btn-primary'>Osallistun haasteeseen!</button>")
-      initAndRenderPostMissionEntryBtn(btn, function() {
+      initAndRenderPostMissionEntryBtn(btn, missionId, function() {
         self.createButtonMarkDone(missionId) // update with next button
       })
     }
 
     this.createButtonMarkDone = function(missionId){
       var btn = $("<button id='mark-done' class='btn btn-success'>Sain haasteen suoritettua!</button>")
-      initAndRenderPostMissionEntryBtn(btn, function() { 
+      initAndRenderPostMissionEntryBtn(btn, missionId, function() { 
         $('#signup-or-done-inputs').html('<h2 class="text-success">Hyvin tehty!</h2>')
       })
     }
@@ -91,7 +91,7 @@
         $.ajax({
           type: "POST",
           url: backend.postMissionEntry,
-          data: {missionId: missionId},
+          data: {mid: missionId},
           success: function(result){
             onSuccessBeforeUpdateCounts()
             updateCounts(missionId)
@@ -120,8 +120,11 @@
         var num;
         if (result.result.data) {
           num = parseInt(result.result.data)
-          if(!isNaN(num))
+          if(!isNaN(num)) {
             $(selectorOfSpanToUpdate).text(num)
+            $(selectorOfSpanToUpdate).parent().show()
+          } else
+            $(selectorOfSpanToUpdate).parent().hide()
         }
       })
     }
