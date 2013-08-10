@@ -49,17 +49,18 @@ app.get('/api/mission/:id', function(req, res) {
 // list missions filtered by date and tags parameters
 app.get('/api/mission', function(req, res) {
   var tags = req.query["tags"]
-    , seekDate = req.query["date"]
+    , startDate = req.query["start-date"]
+    , endDate = req.query["end-date"]
     , query = {}
 
   if (tags){
     query.tags = {$all: Mission.parseTagsFromString(tags)}
   }
 
-  if (seekDate) {
-    query.startTime = {$lte: seekDate}
-    query.endTime = {$gte: seekDate}
-  }
+  if (startDate) 
+    query.startTime = {$gte: startDate}
+  if (endDate)
+    query.endTime = {$lte: endDate}
 
   console.log(query)
 

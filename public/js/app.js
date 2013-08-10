@@ -23,7 +23,6 @@
 
     this.get('#/', function(context) {
       context.log('Rendering frontpage');
-      // load active mission with Ajax-request:
       var today = new Date()
         , year = (today.getYear() + 1900).toString()
         , month = (today.getMonth() + 1).toString()
@@ -37,12 +36,13 @@
       context.log('Rendering by tagname ' + this.params.name);
       // TODO: add categories!
     });
-
+    
+    // searches by start-date, doesn't limit the search by end-date (yet, should it?) 
     this.getMissionByDate = function(seekDate) {
-      var missionUrl = backend.mission + '?date=' + seekDate
+      var missionUrl = backend.mission + '?start-date=' + seekDate
       $.getJSON(missionUrl, function(result){
         // fill the mission-template with mission details (=render)
-        if (result.result.data) {
+        if (result.result.data && result.result.data[0]) {
           var context = result.result.data[0]
             , html = template(context);
           $('#main').html(html)
