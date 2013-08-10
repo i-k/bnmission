@@ -47,8 +47,7 @@
             , html = template(context);
           $('#main').html(html)
 
-          self.notDoneCount(context._id);
-          self.doneCount(context._id);
+          updateCounts(context._id);
           self.signUpOrDone(context._id);
 
         } else {
@@ -74,35 +73,28 @@
 
     this.createButtonParticipate = function(missionId){
       var btn = $("<button id='participate' class='btn btn-primary'>Osallistun haasteeseen!</button>")
-      btn.click(function(){
-        // post backend new entry:
-        $.ajax({
-          type: "POST",
-          url: backend.postMissionEntry,
-          data: {missionId: missionId},
-          success: function(result){
-            self.createButtonMarkDone(missionId) // update with next button
-            self.notDoneCount(missionId); // update values
-            self.doneCount(missionId);
-          },
-          dataType: 'json'
-        });
-      });
-      $('#signup-or-done-inputs').html(btn)
+      initAndRenderPostMissionEntryBtn(btn, function() {
+        self.createButtonMarkDone(missionId) // update with next button
+      })
     }
 
     this.createButtonMarkDone = function(missionId){
       var btn = $("<button id='mark-done' class='btn btn-success'>Sain haasteen suoritettua!</button>")
-      btn.click(function(){
+      initAndRenderPostMissionEntryBtn(btn, function() { 
+        $('#signup-or-done-inputs').html('<h2 class="text-success">Hyvin tehty!</h2>')
+      })
+    }
+    
+    function initAndRenderPostMissionEntryBtn(btn, missionId, onSuccessBeforeUpdateCounts) {
+      btn.click(function() {
         // post backend new entry:
         $.ajax({
           type: "POST",
           url: backend.postMissionEntry,
           data: {missionId: missionId},
           success: function(result){
-            $('#signup-or-done-inputs').html('<h2 class="text-success">Hyvin tehty!</h2>')
-            self.notDoneCount(missionId); // update values
-            self.doneCount(missionId);
+            onSuccessBeforeUpdateCounts()
+            updateCounts(missionId)
           },
           dataType: 'json'
         });
@@ -111,23 +103,25 @@
     }
 
     this.notDoneCount = function(missionId){
-      // Fetch the not done count and render it:
-      var notDoneCountUrl = backend.notDoneCount + missionId
-      $.getJSON(notDoneCountUrl, function(result){
-        if (result.result.data) {
-          var notDoneCount = result.result.data.toString()
-          $('#not-done-entry-amount').text(notDoneCount)
-        }
-      })
+      fetchNumberAndUpdate(backend.notDoneCount + missionId, '#not-done-entry-amount')
     }
 
     this.doneCount = function(missionId){
-      // Fetch the not done count and render it:
-      var doneCountUrl = backend.doneCount + missionId
-      $.getJSON(doneCountUrl, function(result){
-        if (typeof result.result.data !== 'undefined') {
-          var doneCount = result.result.data.toString()
-          $('#done-entry-amount').text(doneCount)
+      fetchNumberAndUpdate(backend.doneCount + missionId, '#done-entry-amount')
+    }
+    //TODO: fetch both with one call
+    function updateCounts(missionId) {
+      self.notDoneCount(missionId); // update values
+      self.doneCount(missionId);
+    }
+    
+    function fetchNumberAndUpdate(url, selectorOfSpanToUpdate) {
+      $.getJSON(url, function(result) {
+        var num;
+        if (result.result.data) {
+          num = parseInt(result.result.data)
+          if(!isNaN(num))
+            $(selectorOfSpanToUpdate).text(num)
         }
       })
     }
