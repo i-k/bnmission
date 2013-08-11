@@ -1,7 +1,20 @@
-// TODO: refactor this into some nicer form or rewrite?
+// Goal has been to keep this small, not bothering with Backbone etc.
 
 // Define an anonymous module:
 (function($) {
+
+  // Setup listeners for menu-buttons:
+  $('#sports').on('click', function(){
+    window.location.href = '#/tags/sports'
+  })
+
+  $('#food').on('click', function(){
+    window.location.href = '#/tags/food'
+  })
+
+  $('#health').on('click', function(){
+    window.location.href = '#/tags/health'
+  })
 
   // Load Handlebars mission-template
   var source   = $("#mission-template").html()
@@ -17,30 +30,30 @@
     postMissionEntry: backendApiRoot + "mission-entry"
   }
 
+  var today = new Date()
+    , year = (today.getYear() + 1900).toString()
+    , month = (today.getMonth() + 1).toString()
+    , day = today.getDate().toString()
+    , dateStr = year + '-' + month + '-' + day
+
   // Setup routes with Sammy.js
   var app = $.sammy('#main', function() {
 
-    var self = this;
+    var self = this
 
     this.get('#/', function(context) {
       context.log('Rendering frontpage');
-      var today = new Date()
-        , year = (today.getYear() + 1900).toString()
-        , month = (today.getMonth() + 1).toString()
-        , day = today.getDate().toString()
-        , dateStr = year + '-' + month + '-' + day
-
-      self.getMissionBySeekDate(dateStr)
-    });
+      self.getMissionBySeekDateAndTags(dateStr, 'urheilu')
+    })
 
     this.get('#/tags/:name', function(context) {
-      context.log('Rendering by tagname ' + this.params.name);
-      // TODO: add categories!
-    });
-    
+      context.log('Rendering by tagname ' + this.params.name)
+      self.getMissionBySeekDateAndTags(dateStr, this.params.name)
+    })
+ 
     // searches by start-date, doesn't limit the search by end-date (yet, should it?) 
-    this.getMissionBySeekDate = function(seekDate) {
-      var missionUrl = backend.missionsBySeekdate + '?seek-date=' + seekDate
+    this.getMissionBySeekDateAndTags = function(seekDate, tags) {
+      var missionUrl = backend.missionsBySeekdate + '?seek-date=' + seekDate + '&tags=' + tags
       $.getJSON(missionUrl, function(result){
         // fill the mission-template with mission details (=render)
         if (result.result.data && result.result.data[0]) {
