@@ -141,6 +141,12 @@ app.get('/api/count-mission-entries', function(req, res) {
   MissionEntry.count(query, writeDocOnDbQuerySuccess(res))
 })
 
+// get user's points, which equal how many missions he/she has completed
+app.get('/api/points', function(req, res) {
+  var userIp = req.headers['X-Forwarded-For'] || req.connection.remoteAddress
+  MissionEntry.count({done: true, userId: userIp}, writeDocOnDbQuerySuccess(res))
+})
+
 // to save the entry for given mission
 app.post('/api/mission-entry', function(req, res) {
   var userIp = req.headers['X-Forwarded-For'] || req.connection.remoteAddress

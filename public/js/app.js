@@ -27,7 +27,8 @@
     notDoneCount: backendApiRoot + "count-mission-entries?done=false&mid=",
     doneCount: backendApiRoot + "count-mission-entries?done=true&mid=",
     getMissionEntry: backendApiRoot + "mission-entry?mid=",
-    postMissionEntry: backendApiRoot + "mission-entry"
+    postMissionEntry: backendApiRoot + "mission-entry",
+    getScore: backendApiRoot + "points"
   }
 
   var today = new Date()
@@ -61,6 +62,7 @@
             , html = template(context);
           $('#main').html(html)
 
+          self.updateScore();
           updateCounts(context._id);
           self.signUpOrDone(context._id);
 
@@ -68,6 +70,10 @@
           $('#main').html('<div class="text-failure" style="padding: 5%; background: pink;"><h3>Haasteita ei löytynyt. Yritä myöhemmin uudestaan!</h3></div>')
         }
       })
+    }
+
+    this.updateScore = function() {
+      fetchNumberAndUpdate(backend.getScore, '#points-value')
     }
 
     this.signUpOrDone = function(missionId){
