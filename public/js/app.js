@@ -9,7 +9,8 @@
     , backendApiRoot = "http://localhost:8080/api/";
 
   var backend = {
-    mission: backendApiRoot + "mission",
+    missionsBySeekdate: backendApiRoot + "missions-by-seekdate",
+    mission: backendApiRoot + "mission", // not used at the moment
     notDoneCount: backendApiRoot + "count-mission-entries?done=false&mid=",
     doneCount: backendApiRoot + "count-mission-entries?done=true&mid=",
     getMissionEntry: backendApiRoot + "mission-entry?mid=",
@@ -29,7 +30,7 @@
         , day = today.getDate().toString()
         , dateStr = year + '-' + month + '-' + day
 
-      self.getMissionByDate(dateStr)
+      self.getMissionBySeekDate(dateStr)
     });
 
     this.get('#/tags/:name', function(context) {
@@ -38,8 +39,8 @@
     });
     
     // searches by start-date, doesn't limit the search by end-date (yet, should it?) 
-    this.getMissionByDate = function(seekDate) {
-      var missionUrl = backend.mission + '?start-date=' + seekDate
+    this.getMissionBySeekDate = function(seekDate) {
+      var missionUrl = backend.missionsBySeekdate + '?seek-date=' + seekDate
       $.getJSON(missionUrl, function(result){
         // fill the mission-template with mission details (=render)
         if (result.result.data && result.result.data[0]) {
@@ -51,7 +52,7 @@
           self.signUpOrDone(context._id);
 
         } else {
-          $('#main').html('Haasteita ei löytynyt. Yritä myöhemmin uudestaan!')
+          $('#main').html('<div class="text-failure" style="padding: 5%; background: pink;"><h3>Haasteita ei löytynyt. Yritä myöhemmin uudestaan!</h3></div>')
         }
       })
     }

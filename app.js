@@ -76,6 +76,27 @@ app.get('/api/mission', function(req, res) {
   Mission.find(query, writeDocOnDbQuerySuccess(res))
 })
 
+// list active missions by seekdate (seekdate usually is the current date)
+app.get('/api/missions-by-seekdate', function(req, res) {
+  var tags = req.query["tags"]
+    , seekDate = req.query["seek-date"]
+    , query = {}
+
+  if (tags){
+    query.tags = {$all: Mission.parseTagsFromString(tags)}
+  }
+
+  if (seekDate) {
+    query.startTime = {$lte: seekDate}
+    query.endTime = {$gte: seekDate}
+    console.log(query)
+    Mission.find(query, writeDocOnDbQuerySuccess(res))
+  } else {
+    return writeResult(res, 412, "Missing seekdate", null)
+  }
+
+})
+
 // get mission entry by user, if exists
 app.get('/api/mission-entry', function(req, res) {
   var missionId = req.query["mid"],
