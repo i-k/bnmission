@@ -25,6 +25,14 @@
       , tags = ["urheilu", "ruoka", "terveys"]
       , missionsByTag = { }
       , missionsAreFetched = false
+      
+    $.each(tags, function(i, tag) {
+      $("#menu li a").click(function() {
+         window.location.href = '#/tags/' + $(this).text().toLowerCase()
+         $("#menu .active").removeClass("active")
+         $(this).parent().addClass("active")
+      })
+    })
     
     fillMissionsByTagFrom([])
     fetchAndSetTodaysMissions()
