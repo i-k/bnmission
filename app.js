@@ -56,48 +56,47 @@ app.get('/api/mission/:id', function(req, res) {
 })
 
 // list missions filtered by date and tags parameters
+// returns missions that are active between from-date and to-date, i.e.
+// missions that have their endTimes between from-date and to-date
 app.get('/api/mission', function(req, res) {
-  var tags = req.query["tags"]
-    , startDate = req.query["start-date"]
-    , endDate = req.query["end-date"]
+  var fromDate = req.query["from-date"]
+    , toDate = req.query["to-date"]
     , query = {}
 
-  if (tags) {
-    query.tags = {$all: Mission().parseTagsFromString(tags)}
-  }
+  if (fromDate) {
+    if (toDate)
+      query.endTime = { $gte: fromDate, $lte: toDate }
+    else
+      query.endTime = { $gte: fromDate }
+  } else if (toDate)
+    query.endTime = { $lte: toDate }
 
-  if (startDate) 
-    query.startTime = {$gte: startDate}
-
-  if (endDate)
-    query.endTime = {$lte: endDate}
-
-  console.log(query)
-
-  Mission.find(query, writeDocOnDbQuerySuccess(res))
+  missionByTagsAndTimeQuery(req, res, query)
 })
 
 // list active missions by seekdate (seekdate usually is the current date)
 app.get('/api/missions-by-seekdate', function(req, res) {
-  var tags = req.query["tags"]
-    , seekDate = req.query["seek-date"]
+  var seekDate = req.query["seek-date"]
     , query = {}
-
-  if (tags) {
-    tagsArray = Mission().parseTagsFromString(tags)
-    query.tags = {$all: tagsArray}
-  }
 
   if (seekDate) {
     query.startTime = {$lte: seekDate}
     query.endTime = {$gte: seekDate}
-    console.log(query)
-    Mission.find(query, writeDocOnDbQuerySuccess(res))
+    missionByTagsAndTimeQuery(req, res, query)
   } else {
     return writeResult(res, 412, "Missing seekdate", null)
   }
-
 })
+
+function missionByTagsAndTimeQuery(req, res, timeQuery) {
+  var tags = req.query["tags"]
+
+  if (tags)
+    timeQuery.tags = {$all: Mission().parseTagsFromString(tags) }
+    
+  console.log(timeQuery)
+  Mission.find(timeQuery, writeDocOnDbQuerySuccess(res))
+}
 
 // get mission entry by user, if exists
 app.get('/api/mission-entry', function(req, res) {

@@ -22,7 +22,7 @@
     , backendApiRoot = "http://localhost:8080/api/";
 
   var backend = {
-    missionsBySeekdate: backendApiRoot + "missions-by-seekdate",
+    missionsBySeekdate: backendApiRoot + "mission",
     mission: backendApiRoot + "mission", // not used at the moment
     notDoneCount: backendApiRoot + "count-mission-entries?done=false&mid=",
     doneCount: backendApiRoot + "count-mission-entries?done=true&mid=",
@@ -52,7 +52,6 @@
       self.getMissionBySeekDateAndTags(dateStr, this.params.name)
     })
  
-    // searches by start-date, doesn't limit the search by end-date (yet, should it?) 
     this.getMissionBySeekDateAndTags = function(seekDate, tags) {
       var missionUrl = backend.missionsBySeekdate + '?seek-date=' + seekDate + '&tags=' + tags
       $.getJSON(missionUrl, function(result){

@@ -6,7 +6,7 @@ function initMission(mongoose, settings) {
     description: String,
     image: { url: String, alt: String },
     startTime: {
-      type: Date,
+      type: Date, 
       default: new Date()
     },
     endTime: {
@@ -25,6 +25,14 @@ function initMission(mongoose, settings) {
   
   schema.method('parseTagsFromString', function(value) {
     return value.split(',').map(function(tag) { return tag.trim() })
+  })
+  
+  schema.method('setToMidnight', function(value) {
+    value.setHours(0)
+    value.setMinutes(0)
+    value.setSeconds(0)
+    value.setMilliseconds(0)
+    return value
   })
   
   schema.path('tags').set(function(value) {
