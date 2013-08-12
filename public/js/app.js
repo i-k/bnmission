@@ -2,75 +2,86 @@
 
 // Define an anonymous module:
 (function($) {
-
-  // Setup listeners for menu-buttons:
-  $('#sports').on('click', function(){
-    window.location.href = '#/tags/sports'
-  })
-
-  $('#food').on('click', function(){
-    window.location.href = '#/tags/food'
-  })
-
-  $('#health').on('click', function(){
-    window.location.href = '#/tags/health'
-  })
-
-  // Load Handlebars mission-template
-  var source   = $("#mission-template").html()
-    , template = Handlebars.compile(source)
-    , backendApiRoot = "http://localhost:8080/api/";
-
-  var backend = {
-    missionsBySeekdate: backendApiRoot + "mission",
-    mission: backendApiRoot + "mission", // not used at the moment
-    notDoneCount: backendApiRoot + "count-mission-entries?done=false&mid=",
-    doneCount: backendApiRoot + "count-mission-entries?done=true&mid=",
-    getMissionEntry: backendApiRoot + "mission-entry?mid=",
-    postMissionEntry: backendApiRoot + "mission-entry",
-    getScore: backendApiRoot + "points"
-  }
-
-  var today = new Date()
-    , year = (today.getYear() + 1900).toString()
-    , month = (today.getMonth() + 1).toString()
-    , day = today.getDate().toString()
-    , dateStr = year + '-' + month + '-' + day
-
-  // Setup routes with Sammy.js
   var app = $.sammy('#main', function() {
-
-    var self = this
-
-    this.get('#/', function(context) {
-      context.log('Rendering frontpage');
-      self.getMissionBySeekDateAndTags(dateStr, 'urheilu')
-    })
-
-    this.get('#/tags/:name', function(context) {
-      context.log('Rendering by tagname ' + this.params.name)
-      self.getMissionBySeekDateAndTags(dateStr, this.params.name)
-    })
- 
-    this.getMissionBySeekDateAndTags = function(seekDate, tags) {
-      var missionUrl = backend.missionsBySeekdate + '?seek-date=' + seekDate + '&tags=' + tags
+    var source   = $("#mission-template").html()
+      , template = Handlebars.compile(source)
+      , backendApiRoot = "http://localhost:8080/api/"
+      , backend = {
+        missionsBySeekdate: backendApiRoot + "mission?seek-date=",
+        mission: backendApiRoot + "mission", // not used at the moment
+        notDoneCount: backendApiRoot + "count-mission-entries?done=false&mid=",
+        doneCount: backendApiRoot + "count-mission-entries?done=true&mid=",
+        getMissionEntry: backendApiRoot + "mission-entry?mid=",
+        postMissionEntry: backendApiRoot + "mission-entry",
+        getScore: backendApiRoot + "points"
+      }
+      , today = new Date()
+      , year = (today.getYear() + 1900).toString()
+      , month = (today.getMonth() + 1).toString()
+      , day = today.getDate().toString()
+      , dateStr = year + '-' + month + '-' + day
+      , self = this
+      , currentMission
+      , tags = ["urheilu", "ruoka", "terveys"]
+      , missionsByTag = { }
+      , missionsAreFetched = false
+    
+    fillMissionsByTagFrom([])
+    fetchAndSetTodaysMissions()
+    
+    function fillMissionsByTagFrom(missions) {
+      $.each(tags, function(i, tag) {
+        missionsByTag[tag] = missions.filter(function(m) {
+          return m.tags.indexOf(tag) !== -1
+        })
+      })
+    }
+    
+    function fetchAndSetTodaysMissions() {
+      var missionUrl = backend.missionsBySeekdate + dateStr
       $.getJSON(missionUrl, function(result){
-        // fill the mission-template with mission details (=render)
-        if (result.result.data && result.result.data[0]) {
-          var context = result.result.data[0]
-            , html = template(context);
-          $('#main').html(html)
-
-          self.updateScore();
-          updateCounts(context._id);
-          self.signUpOrDone(context._id);
-
-        } else {
-          $('#main').html('<div class="text-failure" style="padding: 5%; background: pink;"><h3>Haasteita ei löytynyt. Yritä myöhemmin uudestaan!</h3></div>')
+        if (result.result.data) {
+          fillMissionsByTagFrom(result.result.data)
+          missionsAreFetched = true
+          renderCurrentMission()
         }
       })
     }
 
+    function renderMissionTagged(tag) {
+      if(missionsAreFetched) {
+        var foundMissions = missionsByTag[tag];
+        if(foundMissions.length > 0)
+          renderMission(foundMissions[0])
+        else
+          $('#main').html('<div class="text-failure" style="padding: 5%; background: pink;"><h3>Haastetta ei löytynyt. Yritä myöhemmin uudestaan!</h3></div>');
+      }
+    }
+    
+    function renderMission(mission) {
+      $('#main').html(template(mission));
+      console.log(mission)
+      self.updateScore();
+      updateCounts(mission._id);
+      self.signUpOrDone(mission._id);
+    }
+    
+    function renderCurrentMission() {
+      renderMissionTagged(getActiveTag())
+    }
+    
+    function getActiveTag() { return $("#menu li.active a").text().toLowerCase() }
+
+    this.get('#/', function(context) {
+      context.log('Rendering frontpage');
+      renderMissionTagged(tags[0])
+    })
+
+    this.get('#/tags/:name', function(context) {
+      context.log('Rendering by tagname ' + this.params.name)
+      renderMissionTagged(this.params.name)
+    })
+ 
     this.updateScore = function() {
       fetchNumberAndUpdate(backend.getScore, '#points-value')
     }

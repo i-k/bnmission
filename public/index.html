@@ -26,15 +26,27 @@
 </head>
 <body>
   <div id="container" class="container">
+    <div class="menu container">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
 
-    <div id="menu">
-      <div id="sports" class="btn" style="padding: 1%; background: lightyellow;"><h3>Urheilu</h3></div>
-      <div id="food" class="btn" style="padding: 1%; background: lightgreen;"><h3>Ruoka</h3></div>
-      <div id="health" class="btn" style="padding: 1%; background: lightblue;"><h3>Terveys</h3></div>
-      <div id="points" class="pull-right" style="padding: 1%; background: #eee;"><h3>Pisteesi: <b id="points-value"></b></h3></div>
+      <a class="navbar-brand" href="#">Viikon haaste</a>
+     
+      <!-- Place everything within .nav-collapse to hide it until above 768px -->
+      <div class="nav-collapse collapse navbar-responsive-collapse">
+        <ul id="menu" class="nav navbar-nav">
+          <li class="active" style="background: lightyellow;"><a href="#/tags/urheilu">Urheilu</a></li>
+          <li><a href="#/tags/ruoka" style="background: lightgreen;">Ruoka</a></li>
+          <li><a href="#/tags/terveys"style="background: lightblue">Terveys</a></li>
+          <!-- <div id="points" class="pull-right" style="padding: 1%; background: #eee;"><h3>Pisteesi: <b id="points-value"></b></h3></div>-->
+        </ul>
+      </div>
     </div>
 
-    <div id="main"></div>
+    <div id="main"><h3>Haastetta ladataan</h3></div>
 
   </div>
   <script src="js/lib/jquery.js" type="text/javascript" charset="utf-8"></script>
