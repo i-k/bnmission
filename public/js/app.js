@@ -1,7 +1,13 @@
 // Goal has been to keep this small, not bothering with Backbone etc.
-
-// Define an anonymous module:
 (function($) {
+  // so descriptions newlines make sense
+  Handlebars.registerHelper('breaklines', function(text) {
+    text = Handlebars.Utils.escapeExpression(text);
+    text = text.toString();
+    text = text.replace(/(\r\n|\n|\r)/gm, '<br>');
+    return new Handlebars.SafeString(text);
+  });
+  
   var app = $.sammy('#main', function() {
     var source   = $("#mission-template").html()
       , template = Handlebars.compile(source)
@@ -25,6 +31,7 @@
       , tags = ["urheilu", "ruoka", "terveys"]
       , missionsByTag = { }
       , missionsAreFetched = false
+      , activeTag = getActiveTag();
       
     $.each(tags, function(i, tag) {
       $("#menu li a").click(function() {
@@ -43,6 +50,7 @@
           return m.tags.indexOf(tag) !== -1
         })
       })
+      console.log(missionsByTag)
     }
     
     function fetchAndSetTodaysMissions() {
@@ -51,7 +59,8 @@
         if (result.result.data) {
           fillMissionsByTagFrom(result.result.data)
           missionsAreFetched = true
-          renderCurrentMission()
+          
+          renderEditMission(getActiveTag()) //renderCurrentMission() TODO: remember to change back to this
         }
       })
     }
@@ -68,7 +77,6 @@
     
     function renderMission(mission) {
       $('#main').html(template(mission));
-      console.log(mission)
       self.updateScore();
       updateCounts(mission._id);
       self.signUpOrDone(mission._id);
@@ -78,7 +86,7 @@
       renderMissionTagged(getActiveTag())
     }
     
-    function getActiveTag() { return $("#menu li.active a").text().toLowerCase() }
+    function getActiveTag() { return activeTag || $("#menu li.active a").text().toLowerCase() }
 
     this.get('#/', function(context) {
       context.log('Rendering frontpage');
@@ -87,7 +95,13 @@
 
     this.get('#/tags/:name', function(context) {
       context.log('Rendering by tagname ' + this.params.name)
-      renderMissionTagged(this.params.name)
+      activeTag = this.params.name
+      renderMissionTagged(activeTag)
+    })
+    
+    this.get('#/muokkaa/:tag', function(context) {
+      activeTag = this.params.name
+      renderEditMission(activeTag)
     })
  
     this.updateScore = function() {
@@ -165,6 +179,43 @@
             $(selectorOfSpanToUpdate).parent().hide()
         }
       })
+    }
+    // TODO: remember to get rid of this
+    function renderEditMission(missionTag) {
+      var mission = { },
+          tag = missionTag || getActiveTag(),
+          foundMissions = missionsByTag[tag],
+          submitBtn = $("<button class='save-mission btn btn-success' type='submit'>Save</button>");
+      
+      if(missionsAreFetched && foundMissions.length > 0) {
+        mission = foundMissions[0];
+      }
+      
+      $('#main').html(template(mission));
+      function editable(sel) { $("#main " + sel).attr("contenteditable", "true") }
+      [".name", ".description", ".img-src"].map(function(sel) {
+        editable(sel);
+      })
+      submitBtn.click(function() {
+        function txt(sel) { return $("#main " + sel).html().toString().split('<br>').join('\n'); }
+        mission.name = txt(".name");
+        mission.description = txt(".description");
+        mission.image = { src: $("#main img").attr("src"), alt: $("#main img").attr("alt") };
+        mission.tags = mission.tags || [];
+        if(mission.tags.indexOf(tag) === -1)
+          mission.tags.push(tag)
+        $.ajax({
+          type: "POST",
+          url: backend.mission,
+          data: mission,
+          success: function(d){
+            console.log("saved!");
+            console.log(d.result.data);
+          },
+          dataType: 'json'
+        });
+      })
+      $('#main').append(submitBtn);
     }
 
   });

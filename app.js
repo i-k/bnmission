@@ -74,6 +74,19 @@ app.get('/api/mission', function(req, res) {
   missionByTagsAndTimeQuery(req, res, query)
 })
 
+app.post('/api/mission', function(req, res) {
+  var id = req.body['_id'];
+  
+  if(id) {
+    Mission.findById(id, onDbQueryFound(res, function(mission) {
+      mission.set(req.body).save(writeDocOnDbQuerySuccess(res));
+    }))
+  } else {
+    console.log("Creating mission")
+    new Mission().set(req.body).save(writeDocOnDbQuerySuccess(res))
+  }
+})
+
 // list active missions by seekdate (seekdate usually is the current date)
 app.get('/api/missions-by-seekdate', function(req, res) {
   var seekDate = req.query["seek-date"]
