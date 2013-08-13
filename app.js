@@ -153,15 +153,18 @@ app.get('/api/count-mission-entries', function(req, res) {
   MissionEntry.count(query, writeDocOnDbQuerySuccess(res))
 })
 
+function getUserIp(req) {
+  return req.header('x-forwarded-for') || req.headers['X-Forwarded-For'] || req.connection.remoteAddress
+}
+
 // get user's points, which equal how many missions he/she has completed
 app.get('/api/points', function(req, res) {
-  var userIp = req.headers['X-Forwarded-For'] || req.connection.remoteAddress
-  MissionEntry.count({done: true, userId: userIp}, writeDocOnDbQuerySuccess(res))
+  MissionEntry.count({done: true, userId: getUserIp(req)}, writeDocOnDbQuerySuccess(res))
 })
 
 // to save the entry for given mission
 app.post('/api/mission-entry', function(req, res) {
-  var userIp = req.headers['X-Forwarded-For'] || req.connection.remoteAddress
+  var userIp = getUserIp(req)
     , missionId = req.body.mid
   
   if (!missionId)
