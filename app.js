@@ -116,7 +116,12 @@ app.get('/api/mission-entry', function(req, res) {
   var missionId = req.query["mid"],
       userIp = getUserIp(req)
   console.log('Searching: ' + missionId + ', ' + userIp)
-  MissionEntry.findOne({missionId: new ObjectId(missionId), userId: userIp}, writeDocOnDbQuerySuccess(res))
+  MissionEntry.findOne(
+    {missionId: new ObjectId(missionId), userId: userIp},
+    onDbQueryFound(res, function(doc) {
+      writeResult(res, 200, 'success', { done: doc.done })
+    })
+  )
 })
 
 // count all mission entries for given parameters.
@@ -198,7 +203,7 @@ app.post('/api/mission-entry', function(req, res) {
             })
 
             newMissionEntry.save(onDbQuerySuccess(res, function() {
-              return writeResult(res, 201, 'created', newMissionEntry)
+              return writeResult(res, 201, 'New mission entry created')
             }))
           }
         }))

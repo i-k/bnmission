@@ -132,18 +132,19 @@
     this.signUpOrDone = function(missionId){
       var getMissionEntryUrl = backend.getMissionEntry + missionId
       $.getJSON(getMissionEntryUrl, function(result){
+        console.log(result)
         if (result.result.data) {
           console.log(result.result.data)
-          console.log(result.result.data.done)
-          console.log(result) 
           if (!result.result.data.done) {
             self.createButtonMarkDone(missionId)
           } else {
-            $('#' + missionId + ' .signup-or-done-inputs').html('<h3 class="text-success">Olet suorittanut tämän haasteen</h3>')
+            $('#' + missionId + ' .signup-or-done-inputs').html('<h3 class="text-success">Olet suorittanut tämän haasteen!</h3>')
           }
         } else {
           self.createButtonParticipate(missionId)
         }
+      }).fail(function() {
+        self.createButtonParticipate(missionId)
       })
     }
 
