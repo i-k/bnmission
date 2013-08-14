@@ -11,7 +11,7 @@
   var app = $.sammy('#main', function() {
     var source   = $("#mission-template").html()
       , template = Handlebars.compile(source)
-      , backendApiRoot = "http://localhost:8080/api/"
+      , backendApiRoot = document.location.origin + "/api/"
       , backend = {
         missionsBySeekdate: backendApiRoot + "mission?seek-date=",
         mission: backendApiRoot + "mission", // not used at the moment
@@ -48,6 +48,8 @@
       $.each(tags, function(i, tag) {
         missionsByTag[tag] = missions.filter(function(m) {
           return m.tags.indexOf(tag) !== -1
+        }).map(function(m) {
+          return setSocialUrl(m, tag)
         })
       })
       console.log(missionsByTag)
@@ -180,6 +182,17 @@
         }
       })
     }
+    
+    var rootUrl = encodeURIComponentStrict(document.location.origin)
+    function setSocialUrl(mission, tag) {
+      mission.socialUrl = rootUrl + encodeURIComponentStrict("/#/tags/" + tag)
+      return mission
+    }
+    
+    function encodeURIComponentStrict(s) {
+      return encodeURIComponent(s).replace(/[+]/g, "%20");
+    }
+    
     // TODO: remember to get rid of this
     function renderEditMission(missionTag) {
       var mission = { },
