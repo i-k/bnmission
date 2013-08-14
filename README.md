@@ -1,4 +1,7 @@
+[![Build Status](https://travis-ci.org/artiee/bnmission.png)](https://travis-ci.org/artiee/bnmission)
+
 bnmission
 =========
 
-Weekly mission
+Viikkohaaste - Weekly challenge
+

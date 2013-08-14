@@ -1,13 +1,13 @@
 {
+  "name": "Viikkohaaste",
+  "version": "1.0.0",
   "scripts": {
     "start": "node app.js",
     "test": "mocha --recursive"
   },
   "devDependencies": {
-    "request":    "*",
     "express":    "*",
     "mongoose":   "*",
-    "redis":      "*",
     "mocha":      "*",
     "chai":       "*",
     "sinon":      "*",
