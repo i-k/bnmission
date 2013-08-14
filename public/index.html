@@ -4,20 +4,21 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="css/bootstrap-3/bootstrap.css" rel="stylesheet" media="screen" />
+  <link href="css/bootstrap.min.css" rel="stylesheet" media="screen" />
   <title>Viikkohaaste</title>
   <script id="mission-template" type="text/x-handlebars-template">
     <div class="jumbotron" type="text/x-handlebars-template">
       <h1>Viikon haaste</h1>
       <h2 class="name">{{name}}</h2>
       <div class="row">
-        <div class="col-6">
+        <div class="col-md-6">
           {{#if image}}<img src={{image.url}} alt={{image.alt}}>{{/if}}
         </div>
-        <div class="col-6">
-          <p class="text-primary" style="display: none"><span id="not-done-entry-amount"></span> aikoo suorittaa haasteen</p>
-          <p class="text-success" style="display: none"><span id="done-entry-amount"></span> on suorittanut haasteen</p>
-          <div id="signup-or-done-inputs" class="button"></div>
+        <div class="col-md-6">
+          <p class="text-primary" style="display: none"><span id="not-done-entry-amount" class="label label-info"></span> aikoo suorittaa haasteen</p>
+          <p class="text-success" style="display: none"><span id="done-entry-amount" class="label label-success"></span> on suorittanut haasteen</p>
+          <br>
+          <div id="signup-or-done-inputs" class="btn-group-lg"></div>
         </div>
       </div>
       <p class="description">{{breaklines description}}</p><br>
@@ -31,17 +32,16 @@
 </head>
 <body>
   <div id="container" class="container">
-    <div class="menu container">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-
-      <a class="navbar-brand" href="#">Viikon haaste</a>
-     
-      <!-- Place everything within .nav-collapse to hide it until above 768px -->
-      <div class="nav-collapse collapse navbar-responsive-collapse">
+    <nav class="navbar" role="navigation">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Viikon haaste</a>
+      </div>
+      <div class="collapse navbar-collapse">
         <ul id="menu" class="nav navbar-nav">
           <li class="active" style="background: lightyellow;"><a href="#/tags/urheilu">Urheilu</a></li>
           <li style="background: lightgreen;"><a href="#/tags/ruoka">Ruoka</a></li>
@@ -49,13 +49,12 @@
           <!-- <div id="points" class="pull-right" style="padding: 1%; background: #eee;"><h3>Pisteesi: <b id="points-value"></b></h3></div>-->
         </ul>
       </div>
-    </div>
-
+    </nav>
     <div id="main"><h3>Haastetta ladataan</h3></div>
   </div>
   <script src="js/lib/jquery.js" type="text/javascript" charset="utf-8"></script>
   <script src="js/lib/sammy.js" type="text/javascript" charset="utf-8"></script>
-  <script src="js/lib/bootstrap.min-3.js" type="text/javascript" charset="utf-8"></script>
+  <script src="js/lib/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
   <script src="js/lib/handlebars-1.0.0.js" type="text/javascript" charset="utf-8"></script>
   <script src="js/app.js" type="text/javascript" charset="utf-8"></script>
 </body>

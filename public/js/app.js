@@ -62,7 +62,7 @@
           fillMissionsByTagFrom(result.result.data)
           missionsAreFetched = true
           
-          renderEditMission(getActiveTag()) //renderCurrentMission() TODO: remember to change back to this
+          renderCurrentMission()
         }
       })
     }
