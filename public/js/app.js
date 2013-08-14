@@ -42,27 +42,26 @@
     })
     
     fillMissionsByTagFrom([])
-    fetchAndSetTodaysMissions()
     
     function fillMissionsByTagFrom(missions) {
       $.each(tags, function(i, tag) {
         missionsByTag[tag] = missions.filter(function(m) {
           return m.tags.indexOf(tag) !== -1
         }).map(function(m) {
+          m.mainTag = tag
           return setSocialUrl(m, tag)
         })
       })
       console.log(missionsByTag)
     }
     
-    function fetchAndSetTodaysMissions() {
+    function fetchAndSetTodaysMissions(renderOnSuccess) {
       var missionUrl = backend.missionsBySeekdate + dateStr
       $.getJSON(missionUrl, function(result){
         if (result.result.data) {
           fillMissionsByTagFrom(result.result.data)
           missionsAreFetched = true
-          
-          renderCurrentMission()
+          renderOnSuccess()
         }
       })
     }
@@ -83,27 +82,47 @@
       updateCounts(mission._id);
       self.signUpOrDone(mission._id);
     }
-    
-    function renderCurrentMission() {
-      renderMissionTagged(getActiveTag())
+    // lists all the main tags' missions in #main
+    function renderAllMissions() {
+      var foundMissions, mission;
+      $('#main').empty();
+      $.each(tags, function(i, tag) {
+        foundMissions = missionsByTag[tag];
+        if(foundMissions.length > 0) {
+          mission = foundMissions[0];
+          $('#main').append(template(mission));
+          updateCounts(mission._id);
+          self.signUpOrDone(mission._id);
+        }
+      });
+      if($('#main').children().size() === 0)
+        $('#main').html('<div class="text-failure" style="padding: 5%; background: pink;"><h3>Haasteita ei löytynyt. Yritä myöhemmin uudestaan!</h3></div>');
     }
     
     function getActiveTag() { return activeTag || $("#menu li.active a").text().toLowerCase() }
-
+    
+    // lists all the main tags' missions
     this.get('#/', function(context) {
-      context.log('Rendering frontpage');
-      renderMissionTagged(tags[0])
+      if(missionsAreFetched)
+        renderAllMissions()
+      else
+        fetchAndSetTodaysMissions(renderAllMissions)
     })
 
     this.get('#/tags/:name', function(context) {
-      context.log('Rendering by tagname ' + this.params.name)
       activeTag = this.params.name
-      renderMissionTagged(activeTag)
+      if(missionsAreFetched)
+        renderMissionTagged(activeTag)
+      else
+        fetchAndSetTodaysMissions(function() { renderMissionTagged(activeTag) })
     })
     
-    this.get('#/muokkaa/:tag', function(context) {
+    this.get('#/muokkaa/:name', function(context) {
       activeTag = this.params.name
-      renderEditMission(activeTag)
+      if(missionsAreFetched)
+        renderEditMission(activeTag)
+      else
+        fetchAndSetTodaysMissions(function() { renderEditMission(activeTag) })
     })
  
     this.updateScore = function() {
@@ -114,10 +133,13 @@
       var getMissionEntryUrl = backend.getMissionEntry + missionId
       $.getJSON(getMissionEntryUrl, function(result){
         if (result.result.data) {
+          console.log(result.result.data)
+          console.log(result.result.data.done)
+          console.log(result) 
           if (!result.result.data.done) {
             self.createButtonMarkDone(missionId)
           } else {
-            $('#signup-or-done-inputs').html('<h3 class="text-success">Olet suorittanut tämän haasteen</h3>')
+            $('#' + missionId + ' .signup-or-done-inputs').html('<h3 class="text-success">Olet suorittanut tämän haasteen</h3>')
           }
         } else {
           self.createButtonParticipate(missionId)
@@ -126,16 +148,16 @@
     }
 
     this.createButtonParticipate = function(missionId){
-      var btn = $("<button id='participate' class='btn btn-primary'>Osallistun haasteeseen!</button>")
+      var btn = $("<button class='btn btn-primary'>Osallistun haasteeseen!</button>")
       initAndRenderPostMissionEntryBtn(btn, missionId, function() {
         self.createButtonMarkDone(missionId) // update with next button
       })
     }
 
     this.createButtonMarkDone = function(missionId){
-      var btn = $("<button id='mark-done' class='btn btn-success'>Sain haasteen suoritettua!</button>")
+      var btn = $("<button class='btn btn-success'>Sain haasteen suoritettua!</button>")
       initAndRenderPostMissionEntryBtn(btn, missionId, function() { 
-        $('#signup-or-done-inputs').html('<h2 class="text-success">Hyvin tehty!</h2>')
+        $('#' + missionId + ' signup-or-done-inputs').html('<h2 class="text-success">Hyvin tehty!</h2>')
       })
     }
     
@@ -153,19 +175,19 @@
           dataType: 'json'
         });
       })
-      $('#signup-or-done-inputs').html(btn)
+      $('#' + missionId + ' .signup-or-done-inputs').html(btn)
     }
 
     this.notDoneCount = function(missionId){
-      fetchNumberAndUpdate(backend.notDoneCount + missionId, '#not-done-entry-amount')
+      fetchNumberAndUpdate(backend.notDoneCount + missionId, '#' + missionId + ' .not-done-entry-amount')
     }
 
     this.doneCount = function(missionId){
-      fetchNumberAndUpdate(backend.doneCount + missionId, '#done-entry-amount')
+      fetchNumberAndUpdate(backend.doneCount + missionId, '#' + missionId + ' .done-entry-amount')
     }
     //TODO: fetch both with one call
     function updateCounts(missionId) {
-      self.notDoneCount(missionId); // update values
+      self.notDoneCount(missionId);
       self.doneCount(missionId);
     }
     
@@ -235,7 +257,7 @@
   
   // Start the main application logic:    
   $(function() {
-    app.run('#/');
+    app.run(document.location.hash || '#/');
   });
       
 })(jQuery);

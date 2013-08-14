@@ -7,22 +7,22 @@
   <link href="css/bootstrap.min.css" rel="stylesheet" media="screen" />
   <title>Viikkohaaste</title>
   <script id="mission-template" type="text/x-handlebars-template">
-    <div class="jumbotron" type="text/x-handlebars-template">
-      <h1>Viikon haaste</h1>
+    <div id={{_id}} class="jumbotron">
+      <h1>Viikon {{mainTag}}haaste</h1>
       <h2 class="name">{{name}}</h2>
       <div class="row">
-        <div class="col-md-6">
-          {{#if image}}<img src={{image.url}} alt={{image.alt}}>{{/if}}
+        <div class="col-md-5">
+          {{#if image}}<img src={{image.url}} alt={{image.alt}} class=".img-responsive">{{/if}}
+          <p class="description">{{breaklines description}}</p>
         </div>
-        <div class="col-md-6">
-          <p class="text-primary" style="display: none"><span id="not-done-entry-amount" class="label label-info"></span> aikoo suorittaa haasteen</p>
-          <p class="text-success" style="display: none"><span id="done-entry-amount" class="label label-success"></span> on suorittanut haasteen</p>
+        <div class="col-md-5">
+          <p class="text-primary" style="display: none"><span class="not-done-entry-amount label label-info"></span> aikoo suorittaa haasteen</p>
+          <p class="text-success" style="display: none"><span class="done-entry-amount label label-success"></span> on suorittanut haasteen</p>
           <br>
-          <div id="signup-or-done-inputs" class="btn-group-lg"></div>
+          <div class="signup-or-done-inputs btn-group-lg"></div>
         </div>
       </div>
-      <p class="description">{{breaklines description}}</p><br>
-      <p class="share">Jaa haaste:&nbsp;
+      <p class="share">Haasta kaverisi mukaan!&nbsp;
         <a class="fb" href=http://www.facebook.com/sharer.php?u={{socialUrl}}><img src="/img/fb.png" alt="Jaa Facebookissa"></a>
         <a class="twitter" href=https://twitter.com/share?url={{socialUrl}}&lang=fi><img src="/img/twitter.png" alt="Jaa Twitterissä"></a>
         <a class="gplus" href=https://plus.google.com/share?url={{socialUrl}}&hl=fi><img src="/img/gplus.png" alt="Jaa Google+:ssa"></a>
@@ -32,7 +32,7 @@
 </head>
 <body>
   <div id="container" class="container">
-    <nav class="navbar" role="navigation">
+    <nav class="navbar" role="navigation" style="font-size: 16px">
       <div class="navbar-header">
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
           <span class="icon-bar"></span>
