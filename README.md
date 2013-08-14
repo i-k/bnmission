@@ -1,4 +1,5 @@
 bnmission
 =========
 
-Weekly mission
+Viikkohaaste - Weekly challenge
+
