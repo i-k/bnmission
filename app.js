@@ -114,7 +114,7 @@ function missionByTagsAndTimeQuery(req, res, timeQuery) {
 // get mission entry by user, if exists
 app.get('/api/mission-entry', function(req, res) {
   var missionId = req.query["mid"],
-      userIp = req.headers['X-Forwarded-For'] || req.connection.remoteAddress
+      userIp = getUserIp(req)
   console.log('Searching: ' + missionId + ', ' + userIp)
   MissionEntry.findOne({missionId: new ObjectId(missionId), userId: userIp}, writeDocOnDbQuerySuccess(res))
 })
