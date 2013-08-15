@@ -7,11 +7,15 @@
     text = text.replace(/(\r\n|\n|\r)/gm, '<br>');
     return new Handlebars.SafeString(text);
   });
+
+  $.support.cors = true
+  $.ajaxSetup({cache: false}) // For Internet Explorer. If this is not set, all Ajax-requests hit the cache.
   
   var app = $.sammy('#main', function() {
     var source   = $("#mission-template").html()
       , template = Handlebars.compile(source)
-      , backendApiRoot = document.location.origin + "/api/"
+      , sourceUrl = window.location.protocol + "//" + window.location.host
+      , backendApiRoot = sourceUrl + "/api/"
       , backend = {
         missionsBySeekdate: backendApiRoot + "mission?seek-date=",
         mission: backendApiRoot + "mission", // not used at the moment
@@ -158,7 +162,7 @@
     this.createButtonMarkDone = function(missionId){
       var btn = $("<button class='btn btn-success'>Sain haasteen suoritettua!</button>")
       initAndRenderPostMissionEntryBtn(btn, missionId, function() { 
-        $('#' + missionId + ' signup-or-done-inputs').html('<h2 class="text-success">Hyvin tehty!</h2>')
+        $('#' + missionId + ' .signup-or-done-inputs').html('<h2 class="text-success">Hyvin tehty!</h2>')
       })
     }
     
@@ -206,7 +210,7 @@
       })
     }
     
-    var rootUrl = encodeURIComponentStrict(document.location.origin)
+    var rootUrl = encodeURIComponentStrict(sourceUrl)
     function setSocialUrl(mission, tag) {
       mission.socialUrl = rootUrl + encodeURIComponentStrict("/#/tags/" + tag)
       return mission
@@ -235,7 +239,7 @@
       submitBtn.click(function() {
         function txt(sel) { return $("#main " + sel).html().toString().split('<br>').join('\n'); }
         mission.name = txt(".name");
-        mission.description = txt(".description");
+        mission.description = $("#main .description").text();
         mission.image = { src: $("#main img").attr("src"), alt: $("#main img").attr("alt") };
         mission.tags = mission.tags || [];
         if(mission.tags.indexOf(tag) === -1)

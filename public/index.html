@@ -1,19 +1,18 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE html>
+<html lang="fi">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link href="css/bootstrap.min.css" rel="stylesheet" media="screen" />
   <title>Viikkohaaste</title>
   <script id="mission-template" type="text/x-handlebars-template">
-    <div id={{_id}} class="jumbotron">
+    <div id="{{_id}}" class="jumbotron">
       <h1>Viikon {{mainTag}}haaste</h1>
       <h2 class="name">{{name}}</h2>
       <div class="row">
         <div class="col-md-5">
-          {{#if image}}<img src={{image.url}} alt={{image.alt}} class=".img-responsive">{{/if}}
-          <p class="description">{{breaklines description}}</p>
+          {{#if image}}<img src="{{image.url}}" alt="{{image.alt}}" class="img-responsive">{{/if}}
+          <p class="description">{{{description}}}</p>
         </div>
         <div class="col-md-5">
           <p class="text-primary" style="display: none"><span class="not-done-entry-amount label label-info"></span> aikoo suorittaa haasteen</p>
@@ -39,7 +38,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="#">Viikon haaste</a>
+        <a class="navbar-brand" href="/">Viikon haaste</a>
       </div>
       <div class="collapse navbar-collapse">
         <ul id="menu" class="nav navbar-nav">

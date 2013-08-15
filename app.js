@@ -46,7 +46,7 @@ function onDbQueryFound(res, onSuccess) {
     if (doc)
       onSuccess(doc)
     else
-      writeResult(res, 404, 'not found')
+      writeResult(res, 200, 'not found')
   })
 }
 
