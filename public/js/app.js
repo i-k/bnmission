@@ -49,12 +49,12 @@
     
     function fillMissionsByTagFrom(missions) {
       $.each(tags, function(i, tag) {
-        missionsByTag[tag] = missions.filter(function(m) {
-          return m.tags.indexOf(tag) !== -1
-        }).map(function(m) {
+        missionsByTag[tag] = $(missions).filter(function(i, m) {
+          return $.inArray(tag, m.tags) !== -1
+        }).map(function(i, m) {
           m.mainTag = tag
           return setSocialUrl(m, tag)
-        })
+        }).toArray()
       })
       console.log(missionsByTag)
     }
